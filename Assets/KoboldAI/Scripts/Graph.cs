@@ -139,11 +139,15 @@ namespace KoboldAI {
 					bool occupied = IsOccupied(point,out occupyingActor);
 					if(IsValidPoint(point) && ( !IsTraversable(point,travelMethod) || (occupied && point != position)))
 					{
-
-						res.gameObject = occupyingActor.gameObject;
-						res.position = point;
-						res.doesHit = true;
-						res.distance = line.Count;
+						if (WorldPosToGraph(occupyingActor.gameObject.transform.position) == point)
+						{
+							res.gameObject = occupyingActor.gameObject;
+							res.position = point;
+							res.doesHit = true;
+							res.distance = line.Count;
+						}
+						else
+							OccupyNode(point,null);
 						break;
 					}
 					if(line[0] != position)
