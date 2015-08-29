@@ -38,10 +38,10 @@ namespace KoboldAI {
 				// Vision
 				if(angle < FieldOfView * 0.5f)
 				{
-					RaycastHit hit;
-					if(Physics.Raycast(this.transform.position+Vector3.up*0.5f,dir.normalized,out hit,SightDistance))
+					RaycastResult rRes = navGraph.RayCast(this.transform.position,dir.normalized,SightDistance,AccessType.Fly);
+					if (rRes.doesHit)
 					{
-						Debug.Log("Kobold: I see a " + hit.collider.gameObject.name + " from team " +actor.Team);
+						Debug.Log("Kobold: I has visual to " + rRes.actor.gameObject.name + " from team " + rRes.actor.Team);
 					}
 				}
 

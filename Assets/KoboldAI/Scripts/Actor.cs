@@ -12,17 +12,26 @@ namespace KoboldAI {
 		public bool isMoving = false;
 		protected Graph navGraph = null;
 		private List<Node> currentPath = null;
+		private bool initOccupy = false;
 
 		// Use this for initialization
 		public virtual void Start () {
 			targetPosition = this.transform.position;
 			navGraph = Manager.Instance.NavGraph;
+			if (navGraph != null)
+				navGraph.OccupyNode(navGraph.WorldPosToGraph(transform.position),this);
 		}
 		
 		void Update () {
 			if (navGraph == null)
 			{
 				navGraph = Manager.Instance.NavGraph;
+
+			}
+			if (!initOccupy && navGraph != null && Manager.Instance.LevelGenerator.Ready)
+			{
+				navGraph.OccupyNode(navGraph.WorldPosToGraph(transform.position),this);
+				initOccupy = true;
 			}
 			if (currentPath != null)
 			{
@@ -64,6 +73,8 @@ namespace KoboldAI {
 				while (movementLeft > 0){
 					targetPosition = navGraph.GraphPosToWorld(currentPath[1].Position);
 					movementLeft -= Mathf.FloorToInt(currentPath[1].CostToEnter(TravelMethod));
+					navGraph.OccupyNode(currentPath[1].Position,this);
+					navGraph.OccupyNode(currentPath[0].Position,null);
 					currentPath.RemoveAt(0);
 					if (currentPath.Count == 1)
 					{

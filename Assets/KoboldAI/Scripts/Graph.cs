@@ -69,6 +69,11 @@ namespace KoboldAI {
 			return new Vector2(p.x,p.z);
 		}
 
+		public void OccupyNode(Vector2 position, Actor actor)
+		{
+			Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)].OccupiedBy = actor;
+		}
+
 		public Graph(int sizeX = 10, int sizeY = 10)
 		{
 			Nodes = new Node[sizeX,sizeY];
@@ -97,6 +102,68 @@ namespace KoboldAI {
 			return GetShortestPathDijkstra(start,end,travelMethod);
 		}
 
+		public RaycastResult RayCast(Vector3 position, Vector3 direction, float length, AccessType travelMethod = AccessType.Fly)
+		{
+			return RayCast(WorldPosToGraph(position),WorldPosToGraph(direction),length,travelMethod);
+		}
+
+		public RaycastResult RayCast(Vector2 position, Vector2 direction, float length, AccessType travelMethod = AccessType.Fly)
+		{
+			RaycastResult res = new RaycastResult();
+			res.doesHit = false;
+			if (length == 0)
+			{
+				res.doesHit = IsTraversable(position,travelMethod);
+				res.position = position;
+				return res;
+			}
+
+			List<Vector2> line = BresenhamLine(position,position+(direction.normalized * length));
+			if (line.Count > 0) {
+				int pointIndex = 0;
+				if (line[0] != position)
+					pointIndex = line.Count -1;
+				while (true)
+				{
+					Vector2 point = line[pointIndex];
+					Actor occupyingActor;
+					bool occupied = IsOccupied(point,out occupyingActor);
+					if(!IsTraversable(point,travelMethod) || occupied)
+					{
+						if (occupied)
+							res.actor = occupyingActor;
+						res.position = point;
+						res.doesHit = true;
+						break;
+					}
+					if(line[0] != position)
+					{
+						pointIndex--;
+						if (pointIndex < 0) 
+							break;
+					}
+					else
+					{
+						pointIndex++;
+						if(pointIndex >= line.Count) 
+							break;
+					}
+				}
+			}
+			return res;
+		}
+
+		private bool IsTraversable(Vector2 position, AccessType travelMethod = AccessType.Fly)
+		{
+			return Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)].IsTraversable(travelMethod);
+		}
+
+		private bool IsOccupied(Vector2 position, out Actor actor)
+		{
+			actor = Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)].OccupiedBy;
+			return actor != null;
+		}
+
 		#region ALGORITHMS
 
 		#region BRESENHAM
@@ -107,12 +174,12 @@ namespace KoboldAI {
 			b = c;
 		}
 
-		private List<Vector2> BresenhamLine(Vector2 start, Vector2 end, AccessType travelMethod = AccessType.Fly)
+		private List<Vector2> BresenhamLine(Vector2 start, Vector2 end)
 		{
-			return BresenhamLine(Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y),Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y), travelMethod);
+			return BresenhamLine(Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y),Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y));
 		}
 
-		private List<Vector2> BresenhamLine(int xs,int ys,int xe,int ye, AccessType travelMethod = AccessType.Fly)
+		private List<Vector2> BresenhamLine(int xs,int ys,int xe,int ye)
 		{
 			List<Vector2> result = new List<Vector2>();
 			bool steep = Mathf.Abs(ye-ys) > Mathf.Abs(xe-xs);
