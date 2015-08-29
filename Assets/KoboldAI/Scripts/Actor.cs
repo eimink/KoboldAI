@@ -53,7 +53,7 @@ namespace KoboldAI {
 		public void MoveTo(Vector3 position)
 		{
 			currentPath = null;
-			currentPath = navGraph.GetShortestPathDijkstra(this.transform.position,position,TravelMethod);
+			currentPath = navGraph.GetShortestPath(this.transform.position,position,TravelMethod);
 		}
 		
 		public void TravelAlongPath()

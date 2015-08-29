@@ -6,7 +6,7 @@ namespace KoboldAI {
 	public class Kobold : Actor{
 
 		public float FieldOfView = 110f;
-		public float SightDistance = 30f;
+		public float SightDistance = 10f;
 		public float HearDistance = 30f;
 
 		public bool IsAlerted = false;
@@ -49,7 +49,7 @@ namespace KoboldAI {
 				if (!IsAlerted)
 					if (actor.isMoving)
 					{
-						if(navGraph.GetShortestPathDijkstra(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
+						if(navGraph.GetShortestPath(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
 						{
 							Debug.Log("Kobold: I hear someone moving nearby!");
 							IsAlerted = true;

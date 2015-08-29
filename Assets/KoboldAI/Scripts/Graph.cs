@@ -82,27 +82,75 @@ namespace KoboldAI {
 			m_WorldOrigin = origin;
 		}
 
-		/// <summary>
-		/// Gets the shortest path with dijkstra. Converts automatically from world coordinates to graph.
-		/// </summary>
-		/// <returns>The shortest path as list of nodes.</returns>
-		/// <param name="start">Start coordinates.</param>
-		/// <param name="end">End coordinates.</param>
-		public List<Node> GetShortestPathDijkstra(Vector3 start, Vector3 end, AccessType travelMethod = AccessType.Walk)
+		public List<Node> GetShortestPath(Vector3 start, Vector3 end, AccessType travelMethod = AccessType.Walk)
 		{
-			return GetShortestPathDijkstra(WorldPosToGraph(start),WorldPosToGraph(end), travelMethod);
+			return GetShortestPath(WorldPosToGraph(start),WorldPosToGraph(end),travelMethod);
 		}
 
-		/// <summary>
-		/// Gets the shortest path with dijkstra.
-		/// </summary>
-		/// <returns>The shortest path as list of nodes.</returns>
-		/// <param name="start">Start coordinates.</param>
-		/// <param name="end">End coordinates.</param>
-		public List<Node> GetShortestPathDijkstra(Vector2 start, Vector2 end, AccessType travelMethod = AccessType.Walk)
+		public List<Node> GetShortestPath(Vector2 start, Vector2 end, AccessType travelMethod = AccessType.Walk)
 		{
-			return GetShortestPathDijkstra(Nodes[Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y)],Nodes[Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y)],travelMethod);
+			return GetShortestPath(Nodes[Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y)],Nodes[Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y)],travelMethod);
 		}
+
+		public List<Node> GetShortestPath(Node start, Node end, AccessType travelMethod = AccessType.Walk)
+		{
+			return GetShortestPathDijkstra(start,end,travelMethod);
+		}
+
+		#region ALGORITHMS
+
+		#region BRESENHAM
+
+		private void Swap<T>(ref T a, ref T b) {
+			T c = a;
+			a = b;
+			b = c;
+		}
+
+		private List<Vector2> BresenhamLine(Vector2 start, Vector2 end, AccessType travelMethod = AccessType.Fly)
+		{
+			return BresenhamLine(Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y),Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y), travelMethod);
+		}
+
+		private List<Vector2> BresenhamLine(int xs,int ys,int xe,int ye, AccessType travelMethod = AccessType.Fly)
+		{
+			List<Vector2> result = new List<Vector2>();
+			bool steep = Mathf.Abs(ye-ys) > Mathf.Abs(xe-xs);
+			if (steep)
+			{
+				Swap(ref xs, ref ys);
+				Swap(ref xe, ref ye);
+			}
+			if (xs > xe)
+			{
+				Swap (ref xs, ref xe);
+				Swap (ref ys, ref ye);
+			}
+
+			int deltaX = xe-xs;
+			int deltaY = Mathf.Abs(ye-ys);
+			int error = 0;
+			int ystep;
+			int y = ys;
+			ystep = ys < ye ? 1 : -1;
+			for (int x = xs; x <= xe; x++)
+			{
+				if(steep)
+					result.Add(new Vector2(y,x));
+				else
+					result.Add(new Vector2(x,y));
+				error += deltaY;
+				if( 2 * error >= deltaX) {
+					y += ystep;
+					error -= deltaX;
+				}
+			}
+			return result;
+		}
+
+		#endregion
+
+		#region DIJKSTRA
 
 		/// <summary>
 		/// Gets the shortest path with dijkstra.
@@ -110,7 +158,7 @@ namespace KoboldAI {
 		/// <returns>The shortest path as list of nodes</returns>
 		/// <param name="start">Start node.</param>
 		/// <param name="end">End node.</param>
-		public List<Node> GetShortestPathDijkstra(Node start, Node end, AccessType travelMethod = AccessType.Walk)
+		private List<Node> GetShortestPathDijkstra(Node start, Node end, AccessType travelMethod = AccessType.Walk)
 		{
 			var previous = new Dictionary<Node, Node>();
 			var distances = new Dictionary<Node, float>();
@@ -187,6 +235,9 @@ namespace KoboldAI {
 			else
 				return 1;
 		}
+		#endregion
+
+		#endregion
 	}
 
 }
