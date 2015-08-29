@@ -11,7 +11,6 @@ namespace KoboldAI {
 
 		public bool IsAlerted = false;
 
-		private SphereCollider senseCollider = null;
 		public List<GameObject> hearables = new List<GameObject>();
 		public List<GameObject> visibles = new List<GameObject>();
 
