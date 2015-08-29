@@ -42,7 +42,6 @@ namespace KoboldAI {
 					if (rRes.doesHit)
 					{
 						Debug.DrawLine(this.transform.position,rRes.actor.transform.position,Color.magenta);
-						Debug.Log("seeing you!");
 					}
 				}
 
