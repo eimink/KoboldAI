@@ -6,7 +6,8 @@ namespace KoboldAI {
 
 		public bool doesHit;
 		public Vector2 position;
-		public Actor actor;
+		public GameObject gameObject;
+		public float distance;
 
 	}
 }

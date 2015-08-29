@@ -11,9 +11,17 @@ namespace KoboldAI {
 
 		public Node[,] Nodes;
 
+		private int maxX = 0, maxY = 0;
+
 		public void AddNode(Vector2 pos, Tile tile)
 		{
-			Nodes[Mathf.FloorToInt(pos.x),Mathf.FloorToInt(pos.y)] = new Node(pos,tile);
+			int x = Mathf.FloorToInt(pos.x);
+			int y = Mathf.FloorToInt(pos.y);
+			if (x > maxX)
+				maxX = x;
+			if (y > maxY)
+				maxY = y;
+			Nodes[x,y] = new Node(pos,tile);
 		}
 
 		public void SetEightWayNeighbors(int sizeX, int sizeY)
@@ -113,6 +121,7 @@ namespace KoboldAI {
 			res.doesHit = false;
 			if (length == 0)
 			{
+				res.gameObject = null;
 				res.doesHit = IsTraversable(position,travelMethod);
 				res.position = position;
 				return res;
@@ -128,12 +137,13 @@ namespace KoboldAI {
 					Vector2 point = line[pointIndex];
 					Actor occupyingActor;
 					bool occupied = IsOccupied(point,out occupyingActor);
-					if(!IsTraversable(point,travelMethod) || occupied)
+					if(IsValidPoint(point) && ( !IsTraversable(point,travelMethod) || (occupied && point != position)))
 					{
-						if (occupied)
-							res.actor = occupyingActor;
+
+						res.gameObject = occupyingActor.gameObject;
 						res.position = point;
 						res.doesHit = true;
+						res.distance = line.Count;
 						break;
 					}
 					if(line[0] != position)
@@ -153,14 +163,41 @@ namespace KoboldAI {
 			return res;
 		}
 
+		private bool IsValidPoint(Vector2 point)
+		{
+			if (point.x < 0 || point.y < 0 || point.x > maxX || point.y > maxY)
+			{
+				return false;
+			}
+			return true;
+		}
+
 		private bool IsTraversable(Vector2 position, AccessType travelMethod = AccessType.Fly)
 		{
-			return Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)].IsTraversable(travelMethod);
+			if (position.x < 0 || position.y < 0)
+			{
+				return false;
+			}
+			Node node = Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)];
+			if (node == null)
+				return false;
+			return node.IsTraversable(travelMethod);
 		}
 
 		private bool IsOccupied(Vector2 position, out Actor actor)
 		{
-			actor = Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)].OccupiedBy;
+			if (position.x < 0 || position.y < 0)
+			{
+				actor = null;
+				return false;
+			}
+			Node node = Nodes[Mathf.FloorToInt(position.x),Mathf.FloorToInt(position.y)];
+			if (node == null)
+			{
+				actor = null;
+				return false;
+			}
+			actor = node.OccupiedBy;
 			return actor != null;
 		}
 

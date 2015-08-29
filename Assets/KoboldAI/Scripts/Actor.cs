@@ -51,6 +51,7 @@ namespace KoboldAI {
 		private void DebugDrawPath()
 		{
 			Debug.DrawLine(this.transform.position,navGraph.GraphPosToWorld(currentPath[0].Position),Color.red);
+			if (currentPath.Count > 1)
 			for(int i = 0; i < currentPath.Count -1;i++)
 			{
 				Debug.DrawLine(navGraph.GraphPosToWorld(currentPath[i].Position),navGraph.GraphPosToWorld(currentPath[i+1].Position),Color.red);
@@ -67,18 +68,18 @@ namespace KoboldAI {
 		
 		public void TravelAlongPath()
 		{
-			if (currentPath != null && !isMoving)
+			if (currentPath != null && currentPath.Count > 1 && !isMoving)
 			{
 				int movementLeft = Speed;
 				while (movementLeft > 0){
-					targetPosition = navGraph.GraphPosToWorld(currentPath[1].Position);
-					movementLeft -= Mathf.FloorToInt(currentPath[1].CostToEnter(TravelMethod));
-					navGraph.OccupyNode(currentPath[1].Position,this);
 					navGraph.OccupyNode(currentPath[0].Position,null);
 					currentPath.RemoveAt(0);
-					if (currentPath.Count == 1)
+					movementLeft -= Mathf.FloorToInt(currentPath[0].CostToEnter(TravelMethod));
+					targetPosition = navGraph.GraphPosToWorld(currentPath[0].Position);
+					navGraph.OccupyNode(currentPath[0].Position,this);
+					if (currentPath.Count <= 1)
 					{
-						currentPath = null;
+						movementLeft = 0;
 						break;
 					}
 				}
