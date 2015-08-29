@@ -6,26 +6,6 @@ using System.Linq;
 namespace KoboldAI
 {
 
-	public enum TileType 
-	{
-		Grass = 0,
-		Swamp,
-		Water,
-		Rock
-	}
-
-	public enum AccessType
-	{
-		None = 0,
-		Swim,
-		Walk,
-		WalkAndSwim,
-		Fly,
-		FlyAndSwim,
-		FlyAndWalk,
-		All
-	}
-
 	[Serializable]
 	public class AccessCost
 	{
@@ -47,7 +27,5 @@ namespace KoboldAI
 		}
 
 	}
-
-
 
 }

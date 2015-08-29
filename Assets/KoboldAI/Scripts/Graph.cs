@@ -151,13 +151,11 @@ namespace KoboldAI {
 						path.Add(smallest);
 						smallest = previous[smallest];
 					}
-					Debug.Log("path ready @ "+smallest.Position+" with count "+path.Count);
 					break;
 				}
 				
 				if (float.IsInfinity(distances[smallest]))
 				{
-					Debug.Log("infinity break @ "+smallest.Position);
 					break;
 				}
 				

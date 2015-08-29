@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Unit : KoboldAI.Kobold
+public class Unit : KoboldAI.Actor
 {
 	
 }

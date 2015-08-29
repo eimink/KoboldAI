@@ -3,68 +3,59 @@ using System.Collections.Generic;
 
 
 namespace KoboldAI {
-	public class Kobold : MonoBehaviour {
+	public class Kobold : Actor{
 
-		Graph navGraph = null;
+		public float FieldOfView = 110f;
+		public float SightDistance = 30f;
+		public float HearDistance = 30f;
 
-		List<Node> currentPath = null;
+		private SphereCollider senseCollider = null;
 
-		public int Speed = 2;
-		public AccessType TravelMethod = AccessType.Walk;
-
-		private Vector3 targetPosition = Vector3.zero;
-		private bool isMoving = false;
-
-		// Use this for initialization
-		void Start () {
-			targetPosition = this.transform.position;
-			navGraph = GameObject.Find("Map").GetComponent<LevelGenerator>().NodeGraph;
+		public override void Start()
+		{
+			base.Start();
+			senseCollider = this.gameObject.AddComponent<SphereCollider>();
+			senseCollider.radius = Mathf.Max(SightDistance,HearDistance);
+			senseCollider.isTrigger = true;
 		}
 
-		void Update () {
-			if (navGraph == null)
+
+
+		#region SENSES
+
+		public void OnTriggerStay(Collider other)
+		{
+			Actor actor = other.GetComponent<Unit>();
+			if (actor != null)
+			if(actor.Team != this.Team)
 			{
-				navGraph = GameObject.Find("Map").GetComponent<LevelGenerator>().NodeGraph;
-			}
-			if (currentPath != null)
-			{
-				Debug.DrawLine(this.transform.position,navGraph.GraphPosToWorld(currentPath[0].Position),Color.red);
-				for(int i = 0; i < currentPath.Count -1;i++)
+
+				Vector3 dir = other.transform.position - this.transform.position;
+				float angle = Vector3.Angle(dir,this.transform.forward);
+
+				// Vision
+				if(angle < FieldOfView * 0.5f)
 				{
-					Debug.DrawLine(navGraph.GraphPosToWorld(currentPath[i].Position),navGraph.GraphPosToWorld(currentPath[i+1].Position),Color.red);
-				}
-			}
-			if (this.transform.position != targetPosition)
-			{
-				isMoving = true;
-				this.transform.position = targetPosition;
-			}
-			else
-				isMoving = false;
-		}
-
-		public void MoveTo(Vector3 position)
-		{
-			currentPath = null;
-			currentPath = navGraph.GetShortestPathDijkstra(this.transform.position,position,TravelMethod);
-		}
-
-		public void TravelAlongPath()
-		{
-			if (currentPath != null && !isMoving)
-			{
-				int movementLeft = Speed;
-				while (movementLeft > 0){
-					targetPosition = navGraph.GraphPosToWorld(currentPath[1].Position);
-					movementLeft -= Mathf.FloorToInt(currentPath[1].CostToEnter(TravelMethod));
-					currentPath.RemoveAt(0);
-					if (currentPath.Count == 1)
+					RaycastHit hit;
+					if(Physics.Raycast(this.transform.position+Vector3.up*0.5f,dir.normalized,out hit,SightDistance))
 					{
-						currentPath = null;
-						break;
+						Debug.Log("Kobold: I see a " + hit.collider.gameObject.name + " from team " +actor.Team);
+					}
+				}
+
+				// Hearing
+
+				if (actor.isMoving)
+				{
+					if(navGraph.GetShortestPathDijkstra(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
+					{
+						Debug.Log("Kobold: I hear someone moving nearby!");
 					}
 				}
 			}
+
 		}
+
+		#endregion
 	}
 }
