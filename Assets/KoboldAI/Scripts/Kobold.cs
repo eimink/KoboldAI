@@ -9,6 +9,8 @@ namespace KoboldAI {
 		public float SightDistance = 30f;
 		public float HearDistance = 30f;
 
+		public bool IsAlerted = false;
+
 		private SphereCollider senseCollider = null;
 
 		public override void Start()
@@ -44,16 +46,23 @@ namespace KoboldAI {
 				}
 
 				// Hearing
-
-				if (actor.isMoving)
-				{
-					if(navGraph.GetShortestPathDijkstra(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
+				if (!IsAlerted)
+					if (actor.isMoving)
 					{
-						Debug.Log("Kobold: I hear someone moving nearby!");
+						if(navGraph.GetShortestPathDijkstra(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
+						{
+							Debug.Log("Kobold: I hear someone moving nearby!");
+							IsAlerted = true;
+						}
 					}
-				}
 			}
 
+		}
+
+		public void OnTriggerExit(Collider other)
+		{
+			IsAlerted = false;
+			Debug.Log("Kobold: Must be the wind...");
 		}
 
 		#endregion

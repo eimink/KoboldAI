@@ -101,7 +101,6 @@ namespace KoboldAI {
 		/// <param name="end">End coordinates.</param>
 		public List<Node> GetShortestPathDijkstra(Vector2 start, Vector2 end, AccessType travelMethod = AccessType.Walk)
 		{
-			Debug.Log(start.ToString()+" "+end.ToString());
 			return GetShortestPathDijkstra(Nodes[Mathf.FloorToInt(start.x),Mathf.FloorToInt(start.y)],Nodes[Mathf.FloorToInt(end.x),Mathf.FloorToInt(end.y)],travelMethod);
 		}
 
