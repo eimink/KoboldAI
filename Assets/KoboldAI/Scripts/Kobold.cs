@@ -41,7 +41,8 @@ namespace KoboldAI {
 					RaycastResult rRes = navGraph.RayCast(this.transform.position,dir.normalized,SightDistance,AccessType.Fly);
 					if (rRes.doesHit)
 					{
-						Debug.Log("Kobold: I has visual to " + rRes.actor.gameObject.name + " from team " + rRes.actor.Team);
+						Debug.DrawLine(this.transform.position,rRes.actor.transform.position,Color.magenta);
+						Debug.Log("seeing you!");
 					}
 				}
 
@@ -51,7 +52,7 @@ namespace KoboldAI {
 					{
 						if(navGraph.GetShortestPath(this.transform.position,actor.transform.position,AccessType.Fly).Count <= Mathf.FloorToInt(HearDistance))
 						{
-							Debug.Log("Kobold: I hear someone moving nearby!");
+						Debug.DrawLine(this.transform.position,actor.transform.position,Color.white);
 							IsAlerted = true;
 						}
 					}
@@ -62,7 +63,6 @@ namespace KoboldAI {
 		public void OnTriggerExit(Collider other)
 		{
 			IsAlerted = false;
-			Debug.Log("Kobold: Must be the wind...");
 		}
 
 		#endregion
