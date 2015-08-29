@@ -66,7 +66,7 @@ namespace KoboldAI {
 			List<RaycastResult> results = new List<RaycastResult>();
 			if (navGraph != null)
 			{
-				for (float angle = 0; angle <= 360; angle += 10)
+				for (float angle = 0; angle <= 360; angle += 5)
 				{
 					float radians = Mathf.Deg2Rad * angle;
 					Vector3 direction = new Vector3(Mathf.Sin(radians),0,Mathf.Cos(radians));
