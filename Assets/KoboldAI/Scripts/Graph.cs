@@ -110,6 +110,16 @@ namespace KoboldAI {
 			return GetShortestPathDijkstra(start,end,travelMethod);
 		}
 
+		public bool InLineOfSight(Vector3 position, Vector3 target, float visibility)
+		{
+			return InLineOfSight(WorldPosToGraph(position),WorldPosToGraph((target-position).normalized),visibility);
+		}
+
+		public bool InLineOfSight(Vector2 position, Vector2 target, float visibility)
+		{
+			return RayCast(position,(target-position).normalized,visibility,AccessType.Fly).doesHit;
+		}
+
 		public RaycastResult RayCast(Vector3 position, Vector3 direction, float length, AccessType travelMethod = AccessType.Fly)
 		{
 			return RayCast(WorldPosToGraph(position),WorldPosToGraph(direction),length,travelMethod);
